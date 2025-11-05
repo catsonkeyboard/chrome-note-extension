@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>图标生成器</title>
+</head>
+<body>
+    <h2>Chrome扩展图标生成器</h2>
+    <p>点击按钮生成并下载图标</p>
+    <button onclick="generateIcon(16)">生成 16x16</button>
+    <button onclick="generateIcon(48)">生成 48x48</button>
+    <button onclick="generateIcon(128)">生成 128x128</button>
+
+    <script>
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // 绘制背景
+            ctx.fillStyle = '#3b82f6';
+            const radius = size * 0.15;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+
+            // 绘制文字
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('MD', size / 2, size / 2);
+
+            // 下载
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+    </script>
+</body>
+</html>
