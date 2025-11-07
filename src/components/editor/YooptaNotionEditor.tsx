@@ -12,6 +12,7 @@ import ActionMenuList, { DefaultActionMenuRender } from '@yoopta/action-menu-lis
 import Toolbar, { DefaultToolbarRender } from '@yoopta/toolbar'
 import { useNotesStore } from '@/stores/notesStore'
 import { useEditorStore } from '@/stores/editorStore'
+import { ExportButton } from './ExportButton'
 import './yoopta-styles.css'
 
 interface YooptaNotionEditorProps {
@@ -229,9 +230,23 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
     )
   }
 
+  // 编辑器内容区域引用，用于导出
+  const editorContentRef = useRef<HTMLDivElement>(null)
+
   return (
     <div className="h-full w-full flex flex-col overflow-hidden yoopta-editor-container">
-      <div className="flex-1 overflow-auto p-4">
+      {/* 顶部工具栏 */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="text-sm font-medium text-foreground">{note.name}</div>
+        <ExportButton
+          yooptaValue={value}
+          editorElementRef={editorContentRef}
+          filename={note.name}
+        />
+      </div>
+
+      {/* 编辑器内容区域 */}
+      <div ref={editorContentRef} className="flex-1 overflow-auto p-4">
         <YooptaEditor
           editor={editor}
           plugins={plugins}
