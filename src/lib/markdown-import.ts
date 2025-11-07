@@ -233,3 +233,88 @@ export async function readMarkdownFile(file: File): Promise<string> {
 export function getFileNameWithoutExtension(filename: string): string {
   return filename.replace(/\.[^/.]+$/, '')
 }
+
+/**
+ * File structure for folder import
+ */
+export interface ImportedFile {
+  name: string
+  path: string
+  content: any // Yoopta format
+}
+
+/**
+ * Process folder and read all markdown files
+ */
+export async function processFolderFiles(files: FileList): Promise<ImportedFile[]> {
+  const markdownFiles: ImportedFile[] = []
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const relativePath = file.webkitRelativePath || file.name
+
+    // Only process markdown files
+    if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
+      try {
+        const content = await readMarkdownFile(file)
+        const yooptaValue = markdownToYoopta(content)
+        const fileName = getFileNameWithoutExtension(file.name)
+
+        markdownFiles.push({
+          name: fileName,
+          path: relativePath,
+          content: yooptaValue,
+        })
+      } catch (error) {
+        console.error(`Failed to read file ${file.name}:`, error)
+      }
+    }
+  }
+
+  return markdownFiles
+}
+
+/**
+ * Build folder structure from file paths
+ */
+export interface FolderStructure {
+  [key: string]: {
+    type: 'folder' | 'file'
+    name: string
+    content?: any
+    children?: FolderStructure
+  }
+}
+
+export function buildFolderStructure(files: ImportedFile[]): FolderStructure {
+  const root: FolderStructure = {}
+
+  for (const file of files) {
+    const pathParts = file.path.split('/')
+    let currentLevel = root
+
+    // Navigate/create folder structure
+    for (let i = 0; i < pathParts.length - 1; i++) {
+      const folderName = pathParts[i]
+
+      if (!currentLevel[folderName]) {
+        currentLevel[folderName] = {
+          type: 'folder',
+          name: folderName,
+          children: {},
+        }
+      }
+
+      currentLevel = currentLevel[folderName].children!
+    }
+
+    // Add file at the final level
+    currentLevel[file.name] = {
+      type: 'file',
+      name: file.name,
+      content: file.content,
+    }
+  }
+
+  return root
+}

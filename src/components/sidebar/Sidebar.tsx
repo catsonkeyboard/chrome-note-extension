@@ -1,9 +1,11 @@
 import { DraggableFileTree } from './DraggableFileTree'
 import { NewFileDialog } from './NewFileDialog'
 import { ImportMarkdownButton } from './ImportMarkdownButton'
+import { ImportFolderButton } from './ImportFolderButton'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNotesStore } from '@/stores/notesStore'
 import { useEditorStore } from '@/stores/editorStore'
+import type { FolderStructure } from '@/lib/markdown-import'
 
 export function Sidebar() {
   const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote, moveNode, reorderNodes, updateNote } = useNotesStore()
@@ -65,6 +67,35 @@ export function Sidebar() {
     openTab(note.id, note.name)
   }
 
+  const handleImportFolder = (structure: FolderStructure, folderName: string) => {
+    // 递归创建文件夹和笔记
+    const createStructure = (struct: FolderStructure, parentId: string | null = null) => {
+      Object.values(struct).forEach((item) => {
+        if (item.type === 'folder') {
+          // 创建文件夹
+          const folder = createFolder(parentId, item.name)
+          // 递归处理子项
+          if (item.children) {
+            createStructure(item.children, folder.id)
+          }
+        } else if (item.type === 'file') {
+          // 创建笔记
+          const note = createNote(parentId, item.name)
+          // 设置笔记内容
+          updateNote(note.id, JSON.stringify(item.content))
+        }
+      })
+    }
+
+    // 创建根文件夹
+    const rootFolder = createFolder(null, folderName)
+    // 从根文件夹开始创建结构
+    const firstLevelStruct = structure[Object.keys(structure)[0]]
+    if (firstLevelStruct && firstLevelStruct.children) {
+      createStructure(firstLevelStruct.children, rootFolder.id)
+    }
+  }
+
   return (
     <div className="w-64 border-r border-border flex flex-col h-full bg-background">
       {/* 工具栏 (Toolbar) */}
@@ -72,6 +103,7 @@ export function Sidebar() {
         <h2 className="text-sm font-semibold">Notes</h2>
         <div className="flex gap-1">
           <ImportMarkdownButton onImport={handleImportMarkdown} />
+          <ImportFolderButton onImport={handleImportFolder} />
           <NewFileDialog type="note" onConfirm={handleCreateNote} />
           <NewFileDialog type="folder" onConfirm={handleCreateFolder} />
         </div>
