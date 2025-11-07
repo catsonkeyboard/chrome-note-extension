@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yoopta Editor Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    #root {
+      max-width: 900px;
+      margin: 0 auto;
+      min-height: 500px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .test-info {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-info">
+    <h2>Yoopta Editor Debug Test</h2>
+    <p>This is a standalone test to check if Yoopta editor renders correctly.</p>
+    <div id="status">Loading...</div>
+  </div>
+
+  <div id="root"></div>
+
+  <script type="module">
+    const status = document.getElementById('status');
+
+    try {
+      status.textContent = 'Checking React...';
+
+      // Try to import from the built bundle
+      const module = await import('./dist/assets/index.js');
+      status.textContent = 'Module loaded: ' + Object.keys(module).join(', ');
+
+    } catch (error) {
+      status.textContent = 'Error: ' + error.message;
+      console.error('Error loading:', error);
+    }
+  </script>
+</body>
+</html>

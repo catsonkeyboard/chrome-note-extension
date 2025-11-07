@@ -18,6 +18,7 @@ interface EditorState {
   // 辅助方法 (Helper Methods)
   getActiveTab: () => Tab | null
   isNoteOpen: (noteId: string) => boolean
+  closeTabByNoteId: (noteId: string) => void
 }
 
 // 生成Tab ID (Generate Tab ID)
@@ -132,5 +133,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   // 检查笔记是否已打开 (Check if Note is Open)
   isNoteOpen: (noteId) => {
     return get().tabs.some(tab => tab.noteId === noteId)
+  },
+
+  // 根据笔记ID关闭标签页 (Close Tab by Note ID)
+  closeTabByNoteId: (noteId) => {
+    const { tabs } = get()
+    const tab = tabs.find(tab => tab.noteId === noteId)
+    
+    if (tab) {
+      get().closeTab(tab.id)
+    }
   }
 }))
