@@ -1,11 +1,12 @@
 import { DraggableFileTree } from './DraggableFileTree'
 import { NewFileDialog } from './NewFileDialog'
+import { ImportMarkdownButton } from './ImportMarkdownButton'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNotesStore } from '@/stores/notesStore'
 import { useEditorStore } from '@/stores/editorStore'
 
 export function Sidebar() {
-  const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote, moveNode, reorderNodes } = useNotesStore()
+  const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote, moveNode, reorderNodes, updateNote } = useNotesStore()
   const { openTab, tabs, updateTabTitle, closeTabByNoteId } = useEditorStore()
 
   const handleSelectNote = (noteId: string) => {
@@ -54,12 +55,23 @@ export function Sidebar() {
     deleteNode(nodeId)
   }
 
+  const handleImportMarkdown = (name: string, content: any) => {
+    // 创建新笔记并设置内容
+    const note = createNote(null, name)
+    // 更新笔记内容为导入的 Markdown
+    updateNote(note.id, JSON.stringify(content))
+    // 选择并打开笔记
+    selectNote(note.id)
+    openTab(note.id, note.name)
+  }
+
   return (
     <div className="w-64 border-r border-border flex flex-col h-full bg-background">
       {/* 工具栏 (Toolbar) */}
       <div className="p-2 flex items-center justify-between border-b border-border">
         <h2 className="text-sm font-semibold">Notes</h2>
         <div className="flex gap-1">
+          <ImportMarkdownButton onImport={handleImportMarkdown} />
           <NewFileDialog type="note" onConfirm={handleCreateNote} />
           <NewFileDialog type="folder" onConfirm={handleCreateFolder} />
         </div>

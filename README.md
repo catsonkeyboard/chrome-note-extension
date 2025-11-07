@@ -10,6 +10,7 @@ A powerful Chrome extension for Markdown note-taking with tree-based file manage
 - 🖱️ **拖拽排序** - 支持拖拽文件/文件夹重新排序和移动
 - 📝 **Markdown 编辑** - 强大的 Yoopta 编辑器，支持 Notion 风格编辑
 - 🗂️ **多标签页** - 同时打开多个笔记，快速切换
+- 📥 **导入功能** - 支持导入本地 Markdown 文件
 - 📤 **导出功能** - 支持导出为 Markdown、PDF、PNG、JPEG 格式
 - 💾 **本地存储** - 使用 localStorage 存储，数据安全可靠
 - ☁️ **WebDAV 同步** - 支持与远程服务器同步（Nextcloud、ownCloud 等）
@@ -88,6 +89,18 @@ npm run lint
 - 拖动文件到文件夹上可以移入该文件夹
 - 拖动文件到其他文件旁边可以重新排序
 - 支持跨文件夹移动
+
+### 导入笔记
+
+1. 点击左侧工具栏的 📥 导入按钮
+2. 选择本地 Markdown 文件（.md 或 .markdown）
+3. 文件内容将自动转换并创建新笔记
+4. 支持的 Markdown 语法：
+   - 标题（# ## ###）
+   - 列表（有序、无序、待办）
+   - 代码块
+   - 引用
+   - 段落
 
 ### 导出笔记
 
