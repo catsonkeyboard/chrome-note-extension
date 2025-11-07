@@ -3,15 +3,16 @@
   "name": "Markdown Notes",
   "version": "1.0.0",
   "description": "A powerful markdown note-taking extension with tree view and WebDAV sync",
-  "chrome_url_overrides": {
-    "newtab": "index.html"
-  },
   "action": {
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
-    }
+    },
+    "default_title": "Markdown Notes"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "permissions": [
     "storage",

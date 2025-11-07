@@ -9,6 +9,8 @@ interface FileTreeProps {
   onSelectNote: (nodeId: string) => void
   onRename: (nodeId: string, newName: string) => void
   onDelete: (nodeId: string) => void
+  onCreateNote?: (folderId: string) => void
+  onCreateFolder?: (folderId: string) => void
 }
 
 export function FileTree({
@@ -17,6 +19,8 @@ export function FileTree({
   onSelectNote,
   onRename,
   onDelete,
+  onCreateNote,
+  onCreateFolder,
 }: FileTreeProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
 
@@ -47,6 +51,8 @@ export function FileTree({
           onToggle={toggleFolder}
           onRename={onRename}
           onDelete={onDelete}
+          onCreateNote={onCreateNote}
+          onCreateFolder={onCreateFolder}
         />
 
         {/* 递归渲染子节点 (Recursively render children) */}

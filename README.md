@@ -7,8 +7,10 @@ A powerful Chrome extension for Markdown note-taking with tree-based file manage
 ## ✨ 功能特性 (Features)
 
 - 📁 **树形文件管理** - 支持文件夹层级结构，轻松组织笔记
-- 📝 **Markdown 编辑** - 强大的 Markdown 编辑器，支持实时预览
+- 🖱️ **拖拽排序** - 支持拖拽文件/文件夹重新排序和移动
+- 📝 **Markdown 编辑** - 强大的 Yoopta 编辑器，支持 Notion 风格编辑
 - 🗂️ **多标签页** - 同时打开多个笔记，快速切换
+- 📤 **导出功能** - 支持导出为 Markdown、PDF、PNG、JPEG 格式
 - 💾 **本地存储** - 使用 localStorage 存储，数据安全可靠
 - ☁️ **WebDAV 同步** - 支持与远程服务器同步（Nextcloud、ownCloud 等）
 - 🎨 **主题切换** - 支持亮色/暗色主题
@@ -59,16 +61,14 @@ npm run lint
 
 ## 💡 使用方式
 
-**新标签页模式**：打开新标签页（Ctrl+T / Cmd+T）即可自动显示Markdown笔记应用！
-
-详细说明请查看 `NEWTAB_MODE.md`
+**扩展图标模式**：点击浏览器扩展栏的 Markdown Notes 图标，应用会在新标签页中打开！
 
 ## 🎯 使用说明 (Usage)
 
 ### 打开应用
 
-- 打开新标签页（**Ctrl+T** / **Cmd+T**）
-- 应用会自动显示！
+- 点击 Chrome 扩展栏的 Markdown Notes 图标
+- 应用会在新标签页中打开
 
 ### 创建笔记
 
@@ -80,7 +80,24 @@ npm run lint
 
 1. 点击左侧工具栏的 📁 图标
 2. 输入文件夹名称
-3. 拖拽笔记到文件夹（未来功能）
+3. 拖拽笔记到文件夹进行整理
+
+### 拖拽排序
+
+- 将鼠标悬停在文件/文件夹上，会显示拖拽手柄
+- 拖动文件到文件夹上可以移入该文件夹
+- 拖动文件到其他文件旁边可以重新排序
+- 支持跨文件夹移动
+
+### 导出笔记
+
+1. 打开要导出的笔记
+2. 点击顶部的导出按钮
+3. 选择导出格式：
+   - Markdown (.md)
+   - PDF (.pdf)
+   - PNG 图片
+   - JPEG 图片
 
 ### WebDAV 同步
 
@@ -105,7 +122,9 @@ npm run lint
 - **状态管理**: Zustand
 - **UI 组件**: shadcn/ui + Radix UI
 - **样式系统**: Tailwind CSS
-- **Markdown 编辑**: @uiw/react-md-editor
+- **Markdown 编辑器**: Yoopta Editor (Notion-like editor)
+- **拖拽功能**: @dnd-kit
+- **导出功能**: jsPDF + html2canvas
 - **WebDAV 客户端**: webdav
 - **图标**: Lucide React
 

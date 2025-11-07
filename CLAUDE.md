@@ -5,12 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a Chrome extension that provides a Markdown note-taking application with the following features:
-- Left sidebar: Tree-based file list for organizing notes
+- Left sidebar: Tree-based file list for organizing notes with drag-and-drop support
 - Right panel: Tabbed Markdown editor with multi-document support
 - Storage: Notes stored in localStorage with WebDAV sync capability
 - UI: Built with shadcn/ui and Tailwind CSS
 - Framework: React with Zustand for state management
 - Build: Vite
+- Activation: Click extension icon to open app in a new tab
 
 ## Development Commands
 
@@ -110,6 +111,8 @@ localStorage keys:
 3. **Zustand over Redux**: Simpler API, less boilerplate
 4. **Vite over CRA**: Faster builds, better DX
 5. **Manifest V3**: Chrome's latest extension format
+6. **Extension activation**: Click icon to open in new tab (not as new tab override)
+7. **Background service worker**: Handles extension icon clicks to open the app
 
 ### WebDAV Integration
 

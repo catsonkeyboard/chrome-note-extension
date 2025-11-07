@@ -13,6 +13,9 @@ export default defineConfig({
         // 复制 manifest.json
         copyFileSync('public/manifest.json', 'dist/manifest.json')
 
+        // 复制 background.js
+        copyFileSync('public/background.js', 'dist/background.js')
+
         // 创建icons目录
         try {
           mkdirSync('dist/icons', { recursive: true })

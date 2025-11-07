@@ -19,6 +19,10 @@ interface NotesState {
   renameNode: (nodeId: string, newName: string) => void
   deleteNode: (nodeId: string) => void
 
+  // 移动和排序操作 (Move and Reorder Operations)
+  moveNode: (nodeId: string, newParentId: string | null, newIndex: number) => void
+  reorderNodes: (parentId: string | null, oldIndex: number, newIndex: number) => void
+
   // 辅助方法 (Helper Methods)
   findNode: (nodeId: string, nodes?: TreeNode[]) => TreeNode | null
   getNote: (noteId: string) => Note | null
@@ -88,6 +92,53 @@ const addNodeToParent = (
       }
     }
     return node
+  })
+}
+
+// 从树中移除节点并返回节点和新树 (Remove node from tree and return node and new tree)
+const removeNode = (nodes: TreeNode[], nodeId: string): { node: TreeNode | null; newNodes: TreeNode[] } => {
+  let removedNode: TreeNode | null = null
+
+  const removeRecursive = (items: TreeNode[]): TreeNode[] => {
+    return items.filter(item => {
+      if (item.id === nodeId) {
+        removedNode = item
+        return false
+      }
+      if (item.type === 'folder') {
+        item.children = removeRecursive(item.children)
+      }
+      return true
+    })
+  }
+
+  const newNodes = removeRecursive([...nodes])
+  return { node: removedNode, newNodes }
+}
+
+// 在指定位置插入节点 (Insert node at specific position)
+const insertNodeAt = (
+  nodes: TreeNode[],
+  parentId: string | null,
+  node: TreeNode,
+  index: number
+): TreeNode[] => {
+  if (parentId === null) {
+    const newNodes = [...nodes]
+    newNodes.splice(index, 0, node)
+    return newNodes
+  }
+
+  return updateNodeRecursive(nodes, parentId, (parent) => {
+    if (parent.type === 'folder') {
+      const newChildren = [...parent.children]
+      newChildren.splice(index, 0, node)
+      return {
+        ...parent,
+        children: newChildren
+      }
+    }
+    return parent
   })
 }
 
@@ -185,6 +236,48 @@ export const useNotesStore = create<NotesState>()(
       getNote: (noteId) => {
         const node = get().findNode(noteId)
         return node?.type === 'note' ? node : null
+      },
+
+      // 移动节点 (Move Node)
+      moveNode: (nodeId, newParentId, newIndex) => {
+        set(state => {
+          // 移除节点
+          const { node, newNodes } = removeNode(state.tree, nodeId)
+          if (!node) return state
+
+          // 插入到新位置
+          const finalTree = insertNodeAt(newNodes, newParentId, node, newIndex)
+          return { tree: finalTree }
+        })
+      },
+
+      // 重新排序节点 (Reorder Nodes)
+      reorderNodes: (parentId, oldIndex, newIndex) => {
+        set(state => {
+          if (parentId === null) {
+            // 根级别重排序
+            const newTree = [...state.tree]
+            const [movedNode] = newTree.splice(oldIndex, 1)
+            newTree.splice(newIndex, 0, movedNode)
+            return { tree: newTree }
+          } else {
+            // 文件夹内重排序
+            return {
+              tree: updateNodeRecursive(state.tree, parentId, (node) => {
+                if (node.type === 'folder') {
+                  const newChildren = [...node.children]
+                  const [movedNode] = newChildren.splice(oldIndex, 1)
+                  newChildren.splice(newIndex, 0, movedNode)
+                  return {
+                    ...node,
+                    children: newChildren
+                  }
+                }
+                return node
+              })
+            }
+          }
+        })
       }
     }),
     {

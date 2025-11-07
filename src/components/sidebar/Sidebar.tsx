@@ -1,11 +1,11 @@
-import { FileTree } from './FileTree'
+import { DraggableFileTree } from './DraggableFileTree'
 import { NewFileDialog } from './NewFileDialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNotesStore } from '@/stores/notesStore'
 import { useEditorStore } from '@/stores/editorStore'
 
 export function Sidebar() {
-  const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote } = useNotesStore()
+  const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote, moveNode, reorderNodes } = useNotesStore()
   const { openTab, tabs, updateTabTitle, closeTabByNoteId } = useEditorStore()
 
   const handleSelectNote = (noteId: string) => {
@@ -24,6 +24,16 @@ export function Sidebar() {
 
   const handleCreateFolder = (name: string) => {
     createFolder(null, name)
+  }
+
+  const handleCreateNoteInFolder = (folderId: string, name: string) => {
+    const note = createNote(folderId, name)
+    selectNote(note.id)
+    openTab(note.id, note.name)
+  }
+
+  const handleCreateFolderInFolder = (parentFolderId: string, name: string) => {
+    createFolder(parentFolderId, name)
   }
 
   const handleRename = (nodeId: string, newName: string) => {
@@ -58,12 +68,16 @@ export function Sidebar() {
       {/* 文件树 (File Tree) */}
       <ScrollArea className="flex-1">
         <div className="p-2">
-          <FileTree
+          <DraggableFileTree
             nodes={tree}
             selectedNoteId={selectedNoteId}
             onSelectNote={handleSelectNote}
             onRename={handleRename}
             onDelete={handleDelete}
+            onCreateNote={handleCreateNoteInFolder}
+            onCreateFolder={handleCreateFolderInFolder}
+            onMove={moveNode}
+            onReorder={reorderNodes}
           />
         </div>
       </ScrollArea>

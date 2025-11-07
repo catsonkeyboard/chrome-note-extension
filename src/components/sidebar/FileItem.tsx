@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, ChevronDown, File, Folder, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, File, Folder, MoreHorizontal, Pencil, Trash2, FilePlus, FolderPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +21,8 @@ interface FileItemProps {
   onToggle: (nodeId: string) => void
   onRename: (nodeId: string, newName: string) => void
   onDelete: (nodeId: string) => void
+  onCreateNote?: (folderId: string) => void
+  onCreateFolder?: (folderId: string) => void
 }
 
 export function FileItem({
@@ -32,6 +34,8 @@ export function FileItem({
   onToggle,
   onRename,
   onDelete,
+  onCreateNote,
+  onCreateFolder,
 }: FileItemProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [newName, setNewName] = useState(node.name)
@@ -133,6 +137,18 @@ export function FileItem({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {isFolder(node) && onCreateNote && (
+              <DropdownMenuItem onClick={() => onCreateNote(node.id)}>
+                <FilePlus className="mr-2 h-4 w-4" />
+                新建笔记
+              </DropdownMenuItem>
+            )}
+            {isFolder(node) && onCreateFolder && (
+              <DropdownMenuItem onClick={() => onCreateFolder(node.id)}>
+                <FolderPlus className="mr-2 h-4 w-4" />
+                新建文件夹
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={handleRenameStart}>
               <Pencil className="mr-2 h-4 w-4" />
               重命名
