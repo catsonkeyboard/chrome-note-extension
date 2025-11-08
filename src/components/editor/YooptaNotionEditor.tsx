@@ -6,6 +6,7 @@ import Code from '@yoopta/code'
 import { HeadingOne, HeadingTwo, HeadingThree } from '@yoopta/headings'
 import { BulletedList, NumberedList, TodoList } from '@yoopta/lists'
 import Link from '@yoopta/link'
+import Table from '@yoopta/table'
 import { Bold, Italic, CodeMark, Strike, Underline } from '@yoopta/marks'
 import LinkTool, { DefaultLinkToolRender } from '@yoopta/link-tool'
 import ActionMenuList, { DefaultActionMenuRender } from '@yoopta/action-menu-list'
@@ -23,6 +24,14 @@ interface YooptaNotionEditorProps {
 // 定义插件 (在组件外部定义以避免重新创建)
 const plugins = [
   Paragraph,
+  Table.extend({
+    options: {
+      display: {
+        title: 'Table',
+        description: 'Insert a table',
+      },
+    },
+  }),
   Blockquote,
   Code,
   HeadingOne,
@@ -32,7 +41,7 @@ const plugins = [
   NumberedList,
   TodoList,
   Link,
-]
+] as any
 
 // 定义标记 (Marks)
 const marks = [Bold, Italic, CodeMark, Strike, Underline]

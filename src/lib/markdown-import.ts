@@ -375,6 +375,30 @@ export function yooptaToMarkdown(yooptaContent: Record<string, YooptaBlock>): st
           })
         }
         break
+      case 'Table':
+        if (block.value && Array.isArray(block.value)) {
+          // Extract table data
+          const rows = block.value.filter(v => v.type === 'table-row')
+          if (rows.length > 0) {
+            // Header row (first row)
+            const headerRow = rows[0]
+            const headerCells = headerRow.children?.filter((c: any) => c.type === 'table-data-cell') || []
+            const headers = headerCells.map((cell: any) => getItemText(cell) || ' ')
+            lines.push(`| ${headers.join(' | ')} |`)
+
+            // Separator row
+            lines.push(`| ${headers.map(() => '---').join(' | ')} |`)
+
+            // Data rows
+            for (let i = 1; i < rows.length; i++) {
+              const row = rows[i]
+              const cells = row.children?.filter((c: any) => c.type === 'table-data-cell') || []
+              const cellTexts = cells.map((cell: any) => getItemText(cell) || ' ')
+              lines.push(`| ${cellTexts.join(' | ')} |`)
+            }
+          }
+        }
+        break
       case 'Paragraph':
       default:
         const text = getBlockText(block)
