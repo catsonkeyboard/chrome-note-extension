@@ -65,7 +65,7 @@ export class WebDAVSync {
     try {
       await this.ensureDirectory(this.config.remotePath)
 
-      const filePath = `${this.config.remotePath}/${note.id}.md`
+      const filePath = `${this.config.remotePath}/${note.id}.json`
       const content = this.createNoteContent(note)
 
       await this.client.putFileContents(filePath, content, {
@@ -86,7 +86,7 @@ export class WebDAVSync {
     }
 
     try {
-      const filePath = `${this.config.remotePath}/${noteId}.md`
+      const filePath = `${this.config.remotePath}/${noteId}.json`
       const content = await this.client.getFileContents(filePath, {
         format: 'text'
       })
@@ -151,7 +151,7 @@ export class WebDAVSync {
     }
 
     try {
-      const filePath = `${this.config.remotePath}/${noteId}.md`
+      const filePath = `${this.config.remotePath}/${noteId}.json`
       const stat: any = await this.client.stat(filePath)
 
       return new Date(stat.lastmod || stat.data?.lastmod).getTime()
@@ -185,36 +185,58 @@ export class WebDAVSync {
    * 创建笔记内容（带元数据）(Create Note Content with Metadata)
    */
   private createNoteContent(note: Note): string {
-    const metadata = {
+    const noteData = {
       id: note.id,
       name: note.name,
       createdAt: note.createdAt,
-      updatedAt: note.updatedAt
+      updatedAt: note.updatedAt,
+      content: note.content
     }
 
-    return `---
-${JSON.stringify(metadata, null, 2)}
----
-
-${note.content}`
+    return JSON.stringify(noteData, null, 2)
   }
 
   /**
    * 解析笔记内容 (Parse Note Content)
    */
   parseNoteContent(content: string): { metadata: any; content: string } {
-    const match = content.match(/^---\n([\s\S]*?)\n---\n\n([\s\S]*)$/)
+    try {
+      const noteData = JSON.parse(content)
 
-    if (match) {
       return {
-        metadata: JSON.parse(match[1]),
-        content: match[2]
+        metadata: {
+          id: noteData.id,
+          name: noteData.name,
+          createdAt: noteData.createdAt,
+          updatedAt: noteData.updatedAt
+        },
+        content: noteData.content || ''
       }
-    }
+    } catch (error) {
+      console.error('Failed to parse note content as JSON:', error)
 
-    return {
-      metadata: {},
-      content
+      // 降级处理：尝试旧的 YAML frontmatter 格式
+      const match = content.match(/^---\n([\s\S]*?)\n---\n\n([\s\S]*)$/)
+
+      if (match) {
+        try {
+          return {
+            metadata: JSON.parse(match[1]),
+            content: match[2]
+          }
+        } catch {
+          // 如果旧格式也解析失败，返回空
+          return {
+            metadata: {},
+            content: content
+          }
+        }
+      }
+
+      return {
+        metadata: {},
+        content: content
+      }
     }
   }
 
