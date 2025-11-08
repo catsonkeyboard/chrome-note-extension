@@ -12,7 +12,7 @@
 
 1. 打开Chrome浏览器
 2. 访问 `chrome://extensions/`
-3. 找到 "Markdown Notes" 扩展
+3. 找到 "Notes" 扩展
 4. 点击 **"重新加载"** 按钮 🔄
 
 ### 2. 开始使用

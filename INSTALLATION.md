@@ -27,7 +27,7 @@ npm run build
 
 ### 3. 使用扩展
 
-安装成功后，你会在 Chrome 扩展栏看到 Markdown Notes 的图标。
+安装成功后，你会在 Chrome 扩展栏看到 Notes 的图标。
 
 **使用方法**：
 - 点击扩展图标
@@ -39,7 +39,7 @@ npm run build
 为了方便访问，建议将扩展图标固定到工具栏：
 
 1. 点击 Chrome 扩展图标（拼图图标）
-2. 找到 "Markdown Notes"
+2. 找到 "Notes"
 3. 点击图钉图标将其固定到工具栏
 
 ## 故障排除
@@ -61,7 +61,7 @@ npm run build
 - 检查浏览器控制台是否有错误
 - 尝试重新加载扩展：
   1. 访问 `chrome://extensions/`
-  2. 点击 Markdown Notes 扩展的刷新按钮
+  2. 点击 Notes 扩展的刷新按钮
   3. 再次点击扩展图标
 
 ## 开发模式
@@ -80,5 +80,5 @@ npm run build
 
 1. 运行 `npm run build` 重新构建
 2. 访问 `chrome://extensions/`
-3. 点击 Markdown Notes 扩展的刷新按钮
+3. 点击 Notes 扩展的刷新按钮
 4. 扩展会自动更新到最新版本

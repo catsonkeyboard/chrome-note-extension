@@ -193,7 +193,7 @@
 ```json
 {
   "manifest_version": 3,
-  "name": "Markdown Notes",
+  "name": "Notes",
   "version": "1.0.0",
   "description": "A markdown note-taking extension",
   "action": {

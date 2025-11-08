@@ -1,4 +1,4 @@
-# Markdown Notes Chrome Extension
+# Notes Chrome Extension
 
 一个功能强大的 Chrome 扩展程序，提供 Markdown 笔记功能，支持树形文件管理和 WebDAV 同步。
 
@@ -62,13 +62,13 @@ npm run lint
 
 ## 💡 使用方式
 
-**扩展图标模式**：点击浏览器扩展栏的 Markdown Notes 图标，应用会在新标签页中打开！
+**扩展图标模式**：点击浏览器扩展栏的 Notes 图标，应用会在新标签页中打开！
 
 ## 🎯 使用说明 (Usage)
 
 ### 打开应用
 
-- 点击 Chrome 扩展栏的 Markdown Notes 图标
+- 点击 Chrome 扩展栏的 Notes 图标
 - 应用会在新标签页中打开
 
 ### 创建笔记

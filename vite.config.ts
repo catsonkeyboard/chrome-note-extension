@@ -16,6 +16,10 @@ export default defineConfig({
         // 复制 background.js
         copyFileSync('public/background.js', 'dist/background.js')
 
+        // 复制 save-selection 相关文件
+        copyFileSync('public/save-selection.html', 'dist/save-selection.html')
+        copyFileSync('public/save-selection.js', 'dist/save-selection.js')
+
         // 创建icons目录
         try {
           mkdirSync('dist/icons', { recursive: true })

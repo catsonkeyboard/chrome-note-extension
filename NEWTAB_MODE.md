@@ -12,7 +12,7 @@
 
 1. 打开 Chrome 浏览器
 2. 访问 `chrome://extensions/`
-3. 找到 "Markdown Notes" 扩展
+3. 找到 "Notes" 扩展
 4. 点击 **"重新加载"** 按钮 🔄
 
 ### 2. 打开新标签页
@@ -47,9 +47,9 @@
 ```json
 {
   "manifest_version": 3,
-  "name": "Markdown Notes",
+  "name": "Notes",
   "version": "1.0.0",
-  "description": "A powerful markdown note-taking extension with tree view and WebDAV sync",
+  "description": "A powerful notion-like note-taking extension with tree view and WebDAV sync",
   "action": {
     "default_popup": "index.html",
     "default_icon": {
@@ -83,7 +83,7 @@ npm run build
     "newtab": "index.html"
   },
   "action": {
-    "default_title": "打开 Markdown Notes"
+    "default_title": "打开 Notes"
   },
   ...
 }
@@ -121,7 +121,7 @@ chrome.action.onClicked.addListener(() => {
 为扩展添加自定义快捷键：
 
 1. 访问 `chrome://extensions/shortcuts`
-2. 找到 "Markdown Notes"
+2. 找到 "Notes"
 3. 设置快捷键（例如：**Alt+M**）
 4. 按快捷键快速打开应用
 

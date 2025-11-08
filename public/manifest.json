@@ -1,22 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Markdown Notes",
+  "name": "Notes",
   "version": "1.0.0",
-  "description": "A powerful markdown note-taking extension with tree view and WebDAV sync",
+  "description": "A powerful notion-like note-taking extension with tree view and WebDAV sync",
   "action": {
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
     },
-    "default_title": "Markdown Notes"
+    "default_title": "Notes"
   },
   "background": {
     "service_worker": "background.js"
   },
   "permissions": [
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "contextMenus"
   ],
   "icons": {
     "16": "icons/icon-16.png",

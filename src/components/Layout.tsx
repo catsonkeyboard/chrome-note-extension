@@ -29,7 +29,7 @@ export function Layout() {
     <div className="h-screen w-screen flex flex-col bg-background text-foreground overflow-hidden">
       {/* 顶部工具栏 (Top Toolbar) */}
       <header className="border-b border-border px-4 py-2 flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Markdown Notes</h1>
+        <h1 className="text-lg font-semibold">Notes</h1>
         <div className="flex items-center gap-1">
           <SyncButton />
           <SyncSettings />
