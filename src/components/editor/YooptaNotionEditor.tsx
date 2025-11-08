@@ -92,6 +92,9 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
   // 用于追踪最后一次有效的非空内容，防止撤销操作清空数据
   const lastValidContentRef = useRef<any>(null)
 
+  // 用于标记是否正在程序化加载内容（而非用户编辑）
+  const isLoadingContentRef = useRef<boolean>(false)
+
   // 为每个标签页创建独立的编辑器实例 (使用 tabId 作为 key)
   // Create independent editor instance for each tab (use tabId as key)
   const editor: YooEditor = useMemo(() => {
@@ -178,12 +181,20 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
       // 保存有效内容到 ref
       lastValidContentRef.current = newValue
 
+      // 标记正在加载内容
+      isLoadingContentRef.current = true
+
       // 使用编辑器的 setEditorValue 方法确保内容被正确加载
       // 使用 requestAnimationFrame 确保 DOM 已更新
       requestAnimationFrame(() => {
         console.log('使用 editor.setEditorValue 设置内容')
         editor.setEditorValue(newValue)
         setIsInitialized(true)
+
+        // 延迟重置加载标志，确保 onChange 事件已处理完
+        setTimeout(() => {
+          isLoadingContentRef.current = false
+        }, 100)
       })
 
       // 更新 refs
@@ -195,6 +206,12 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
 
   // 处理内容变化
   const handleChange = (newValue: any) => {
+    // 如果正在加载内容（程序化设置），不标记为 dirty
+    if (isLoadingContentRef.current) {
+      setValue(newValue)
+      return
+    }
+
     // 检查新值是否为空或只有一个空段落
     const isEmptyContent = !newValue || Object.keys(newValue).length === 0 ||
       (Object.keys(newValue).length === 1 && (() => {
