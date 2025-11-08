@@ -89,6 +89,9 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
   const previousNoteIdRef = useRef<string>(noteId)
   const previousTabIdRef = useRef<string>(tabId)
 
+  // 用于追踪最后一次有效的非空内容，防止撤销操作清空数据
+  const lastValidContentRef = useRef<any>(null)
+
   // 为每个标签页创建独立的编辑器实例 (使用 tabId 作为 key)
   // Create independent editor instance for each tab (use tabId as key)
   const editor: YooEditor = useMemo(() => {
@@ -172,6 +175,9 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
       setLastSavedContent(newLastSavedContent)
       setIsInitialized(false)
 
+      // 保存有效内容到 ref
+      lastValidContentRef.current = newValue
+
       // 使用编辑器的 setEditorValue 方法确保内容被正确加载
       // 使用 requestAnimationFrame 确保 DOM 已更新
       requestAnimationFrame(() => {
@@ -189,6 +195,29 @@ export function YooptaNotionEditor({ noteId, tabId }: YooptaNotionEditorProps) {
 
   // 处理内容变化
   const handleChange = (newValue: any) => {
+    // 检查新值是否为空或只有一个空段落
+    const isEmptyContent = !newValue || Object.keys(newValue).length === 0 ||
+      (Object.keys(newValue).length === 1 && (() => {
+        const firstBlock: any = Object.values(newValue)[0]
+        return firstBlock?.value?.[0]?.children?.[0]?.text === ''
+      })())
+
+    // 如果新内容为空，但我们有之前保存的有效内容，说明可能是撤销操作导致的bug
+    // 自动恢复到最后的有效状态，防止数据丢失
+    if (isEmptyContent && lastValidContentRef.current && Object.keys(lastValidContentRef.current).length > 0) {
+      // 恢复最后的有效内容
+      setValue(lastValidContentRef.current)
+      editor.setEditorValue(lastValidContentRef.current)
+
+      // 不保存空内容
+      return
+    }
+
+    // 如果内容不为空，更新最后有效内容
+    if (!isEmptyContent) {
+      lastValidContentRef.current = newValue
+    }
+
     setValue(newValue)
 
     // 序列化内容
