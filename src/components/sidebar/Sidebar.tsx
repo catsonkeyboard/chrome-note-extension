@@ -6,9 +6,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNotesStore } from '@/stores/notesStore'
 import { useEditorStore } from '@/stores/editorStore'
 import type { FolderStructure } from '@/lib/markdown-import'
+import { yooptaToMarkdown } from '@/lib/markdown-import'
+import { toast } from 'sonner'
 
 export function Sidebar() {
-  const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote, moveNode, reorderNodes, updateNote } = useNotesStore()
+  const { tree, selectedNoteId, createNote, createFolder, renameNode, deleteNode, selectNote, getNote, moveNode, reorderNodes, updateNote, sortFolderChildren } = useNotesStore()
   const { openTab, tabs, updateTabTitle, closeTabByNoteId } = useEditorStore()
 
   const handleSelectNote = (noteId: string) => {
@@ -29,7 +31,7 @@ export function Sidebar() {
     createFolder(null, name)
   }
 
-  const handleCreateNoteInFolder = (folderId: string, name: string) => {
+  const handleCreateNoteInFolder = (folderId: string | null, name: string) => {
     const note = createNote(folderId, name)
     selectNote(note.id)
     openTab(note.id, note.name)
@@ -96,6 +98,33 @@ export function Sidebar() {
     }
   }
 
+  const handleCopyToClipboard = async (noteId: string) => {
+    const note = getNote(noteId)
+    if (!note || !note.content) {
+      toast.error('无法复制：笔记内容为空')
+      return
+    }
+
+    try {
+      // Parse the Yoopta content
+      const yooptaContent = JSON.parse(note.content)
+      // Convert to markdown
+      const markdown = yooptaToMarkdown(yooptaContent)
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(markdown)
+      toast.success('已复制到剪贴板')
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error)
+      toast.error('复制失败')
+    }
+  }
+
+  const handleSortFolder = (folderId: string) => {
+    sortFolderChildren(folderId)
+    toast.success('已按名称排序')
+  }
+
   return (
     <div className="w-64 border-r border-border flex flex-col h-full bg-background">
       {/* 工具栏 (Toolbar) */}
@@ -122,6 +151,8 @@ export function Sidebar() {
             onCreateFolder={handleCreateFolderInFolder}
             onMove={moveNode}
             onReorder={reorderNodes}
+            onCopyToClipboard={handleCopyToClipboard}
+            onSortFolder={handleSortFolder}
           />
         </div>
       </ScrollArea>

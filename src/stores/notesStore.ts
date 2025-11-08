@@ -22,6 +22,7 @@ interface NotesState {
   // 移动和排序操作 (Move and Reorder Operations)
   moveNode: (nodeId: string, newParentId: string | null, newIndex: number) => void
   reorderNodes: (parentId: string | null, oldIndex: number, newIndex: number) => void
+  sortFolderChildren: (folderId: string | null) => void
 
   // 辅助方法 (Helper Methods)
   findNode: (nodeId: string, nodes?: TreeNode[]) => TreeNode | null
@@ -271,6 +272,36 @@ export const useNotesStore = create<NotesState>()(
                   return {
                     ...node,
                     children: newChildren
+                  }
+                }
+                return node
+              })
+            }
+          }
+        })
+      },
+
+      // 按名称排序文件夹子节点 (Sort Folder Children by Name)
+      sortFolderChildren: (folderId) => {
+        set(state => {
+          if (folderId === null) {
+            // 根级别排序
+            const sortedTree = [...state.tree].sort((a, b) =>
+              a.name.localeCompare(b.name, 'zh-CN')
+            )
+            return { tree: sortedTree }
+          } else {
+            // 文件夹内排序
+            return {
+              tree: updateNodeRecursive(state.tree, folderId, (node) => {
+                if (node.type === 'folder') {
+                  const sortedChildren = [...node.children].sort((a, b) =>
+                    a.name.localeCompare(b.name, 'zh-CN')
+                  )
+                  return {
+                    ...node,
+                    children: sortedChildren,
+                    updatedAt: Date.now()
                   }
                 }
                 return node

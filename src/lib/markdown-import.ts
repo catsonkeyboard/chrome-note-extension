@@ -1,6 +1,6 @@
 /**
- * Markdown import utilities
- * Converts markdown to Yoopta editor format
+ * Markdown import/export utilities
+ * Converts markdown to Yoopta editor format and vice versa
  */
 
 interface YooptaBlock {
@@ -317,4 +317,96 @@ export function buildFolderStructure(files: ImportedFile[]): FolderStructure {
   }
 
   return root
+}
+
+/**
+ * Convert Yoopta editor content to Markdown
+ */
+export function yooptaToMarkdown(yooptaContent: Record<string, YooptaBlock>): string {
+  if (!yooptaContent || Object.keys(yooptaContent).length === 0) {
+    return ''
+  }
+
+  // Sort blocks by order
+  const blocks = Object.values(yooptaContent).sort((a, b) => a.meta.order - b.meta.order)
+  const lines: string[] = []
+
+  for (const block of blocks) {
+    const blockType = block.type
+
+    switch (blockType) {
+      case 'HeadingOne':
+        lines.push(`# ${getBlockText(block)}`)
+        break
+      case 'HeadingTwo':
+        lines.push(`## ${getBlockText(block)}`)
+        break
+      case 'HeadingThree':
+        lines.push(`### ${getBlockText(block)}`)
+        break
+      case 'Blockquote':
+        lines.push(`> ${getBlockText(block)}`)
+        break
+      case 'Code':
+        const codeText = getBlockText(block)
+        lines.push('```')
+        lines.push(codeText)
+        lines.push('```')
+        break
+      case 'BulletedList':
+        if (block.value && Array.isArray(block.value)) {
+          block.value.forEach(item => {
+            lines.push(`- ${getItemText(item)}`)
+          })
+        }
+        break
+      case 'NumberedList':
+        if (block.value && Array.isArray(block.value)) {
+          block.value.forEach((item, idx) => {
+            lines.push(`${idx + 1}. ${getItemText(item)}`)
+          })
+        }
+        break
+      case 'TodoList':
+        if (block.value && Array.isArray(block.value)) {
+          block.value.forEach(item => {
+            const checked = item.props?.checked ? 'x' : ' '
+            lines.push(`- [${checked}] ${getItemText(item)}`)
+          })
+        }
+        break
+      case 'Paragraph':
+      default:
+        const text = getBlockText(block)
+        if (text) {
+          lines.push(text)
+        }
+        break
+    }
+
+    // Add empty line between blocks
+    lines.push('')
+  }
+
+  return lines.join('\n').trim()
+}
+
+/**
+ * Get text content from a block
+ */
+function getBlockText(block: YooptaBlock): string {
+  if (!block.value || !Array.isArray(block.value) || block.value.length === 0) {
+    return ''
+  }
+  return getItemText(block.value[0])
+}
+
+/**
+ * Get text content from a value item
+ */
+function getItemText(item: any): string {
+  if (!item.children || !Array.isArray(item.children)) {
+    return ''
+  }
+  return item.children.map((child: any) => child.text || '').join('')
 }

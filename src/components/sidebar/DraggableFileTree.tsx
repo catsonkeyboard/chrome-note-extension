@@ -25,10 +25,12 @@ interface DraggableFileTreeProps {
   onSelectNote: (nodeId: string) => void
   onRename: (nodeId: string, newName: string) => void
   onDelete: (nodeId: string) => void
-  onCreateNote?: (folderId: string, name: string) => void
+  onCreateNote?: (folderId: string | null, name: string) => void
   onCreateFolder?: (folderId: string, name: string) => void
   onMove: (nodeId: string, newParentId: string | null, newIndex: number) => void
   onReorder: (parentId: string | null, oldIndex: number, newIndex: number) => void
+  onCopyToClipboard?: (nodeId: string) => void
+  onSortFolder?: (folderId: string) => void
 }
 
 export function DraggableFileTree({
@@ -41,6 +43,8 @@ export function DraggableFileTree({
   onCreateFolder,
   onMove,
   onReorder,
+  onCopyToClipboard,
+  onSortFolder,
 }: DraggableFileTreeProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -197,6 +201,8 @@ export function DraggableFileTree({
           onDelete={onDelete}
           onCreateNote={onCreateNote}
           onCreateFolder={onCreateFolder}
+          onCopyToClipboard={onCopyToClipboard}
+          onSortFolder={onSortFolder}
         />
 
         {/* 递归渲染子节点 */}

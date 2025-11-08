@@ -6,22 +6,32 @@ import {
   ChevronDown,
   File,
   Folder,
-  MoreHorizontal,
   Pencil,
   Trash2,
   FilePlus,
-  FolderPlus,
+  Copy,
   GripVertical,
+  ArrowUpDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import {
   Dialog,
   DialogContent,
@@ -43,8 +53,10 @@ interface DraggableFileItemProps {
   onToggle: (nodeId: string) => void
   onRename: (nodeId: string, newName: string) => void
   onDelete: (nodeId: string) => void
-  onCreateNote?: (folderId: string, name: string) => void
+  onCreateNote?: (folderId: string | null, name: string) => void
   onCreateFolder?: (folderId: string, name: string) => void
+  onCopyToClipboard?: (nodeId: string) => void
+  onSortFolder?: (folderId: string) => void
 }
 
 export function DraggableFileItem({
@@ -58,13 +70,14 @@ export function DraggableFileItem({
   onRename,
   onDelete,
   onCreateNote,
-  onCreateFolder,
+  onCopyToClipboard,
+  onSortFolder,
 }: DraggableFileItemProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [newName, setNewName] = useState(node.name)
   const [showCreateNoteDialog, setShowCreateNoteDialog] = useState(false)
-  const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false)
   const [createName, setCreateName] = useState('')
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false)
 
   const {
     attributes,
@@ -111,10 +124,6 @@ export function DraggableFileItem({
     setCreateName('')
   }
 
-  const handleCreateFolderClick = () => {
-    setShowCreateFolderDialog(true)
-    setCreateName('')
-  }
 
   const handleConfirmCreateNote = () => {
     if (createName.trim() && onCreateNote) {
@@ -124,27 +133,24 @@ export function DraggableFileItem({
     }
   }
 
-  const handleConfirmCreateFolder = () => {
-    if (createName.trim() && onCreateFolder) {
-      onCreateFolder(node.id, createName.trim())
-      setShowCreateFolderDialog(false)
-      setCreateName('')
-    }
-  }
 
   const handleCreateKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      if (showCreateNoteDialog) {
-        handleConfirmCreateNote()
-      } else if (showCreateFolderDialog) {
-        handleConfirmCreateFolder()
-      }
+    if (e.key === 'Enter' && showCreateNoteDialog) {
+      handleConfirmCreateNote()
     }
   }
 
   const paddingLeft = `${level * 16 + 8}px`
 
+  const handleDeleteConfirm = () => {
+    onDelete(node.id)
+    setShowDeleteAlert(false)
+  }
+
   return (
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
     <div
       ref={setNodeRef}
       style={style}
@@ -212,46 +218,60 @@ export function DraggableFileItem({
         </span>
       )}
 
-      {/* 更多操作菜单 */}
-      {!isRenaming && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {isFolder(node) && onCreateNote && (
-              <DropdownMenuItem onClick={handleCreateNoteClick}>
-                <FilePlus className="mr-2 h-4 w-4" />
-                新建笔记
-              </DropdownMenuItem>
-            )}
-            {isFolder(node) && onCreateFolder && (
-              <DropdownMenuItem onClick={handleCreateFolderClick}>
-                <FolderPlus className="mr-2 h-4 w-4" />
-                新建文件夹
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={handleRenameStart}>
-              <Pencil className="mr-2 h-4 w-4" />
-              重命名
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete(node.id)}
-              className="text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              删除
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+    </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          {isFolder(node) ? (
+            <>
+              {/* 文件夹右键菜单 */}
+              {onCreateNote && (
+                <ContextMenuItem onClick={handleCreateNoteClick}>
+                  <FilePlus className="mr-2 h-4 w-4" />
+                  新建笔记
+                </ContextMenuItem>
+              )}
+              {onSortFolder && (
+                <ContextMenuItem onClick={() => onSortFolder(node.id)}>
+                  <ArrowUpDown className="mr-2 h-4 w-4" />
+                  排序
+                </ContextMenuItem>
+              )}
+              <ContextMenuItem onClick={handleRenameStart}>
+                <Pencil className="mr-2 h-4 w-4" />
+                重命名
+              </ContextMenuItem>
+              <ContextMenuItem
+                onClick={() => setShowDeleteAlert(true)}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                删除
+              </ContextMenuItem>
+            </>
+          ) : (
+            <>
+              {/* 文件右键菜单 */}
+              {onCopyToClipboard && (
+                <ContextMenuItem onClick={() => onCopyToClipboard(node.id)}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  复制到剪贴板
+                </ContextMenuItem>
+              )}
+              <ContextMenuItem onClick={handleRenameStart}>
+                <Pencil className="mr-2 h-4 w-4" />
+                重命名
+              </ContextMenuItem>
+              <ContextMenuItem
+                onClick={() => setShowDeleteAlert(true)}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                删除
+              </ContextMenuItem>
+            </>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
 
       {/* Create Note Dialog */}
       <Dialog open={showCreateNoteDialog} onOpenChange={setShowCreateNoteDialog}>
@@ -282,34 +302,25 @@ export function DraggableFileItem({
         </DialogContent>
       </Dialog>
 
-      {/* Create Folder Dialog */}
-      <Dialog open={showCreateFolderDialog} onOpenChange={setShowCreateFolderDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>新建文件夹</DialogTitle>
-            <DialogDescription>
-              在 "{node.name}" 文件夹中创建一个新的文件夹来组织笔记
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Input
-              placeholder="输入文件夹名称"
-              value={createName}
-              onChange={(e) => setCreateName(e.target.value)}
-              onKeyDown={handleCreateKeyDown}
-              autoFocus
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateFolderDialog(false)}>
-              取消
-            </Button>
-            <Button onClick={handleConfirmCreateFolder} disabled={!createName.trim()}>
-              创建
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+      {/* 删除确认对话框 */}
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>
+              {isFolder(node)
+                ? `确定要删除文件夹 "${node.name}" 及其所有内容吗？此操作无法撤销。`
+                : `确定要删除笔记 "${node.name}" 吗？此操作无法撤销。`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
